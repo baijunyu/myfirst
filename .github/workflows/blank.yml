@@ -29,12 +29,18 @@ jobs:
           java-version: '8'
           distribution: 'adopt'
 
-      # 步骤 3：压缩代码（排除 .git 目录）
+      # 步骤 3：创建临时目录并复制文件
+      - name: Create temporary directory and copy files
+        run: |
+          mkdir temp_dir
+          rsync -av --exclude='.git' . temp_dir/
+
+      # 步骤 4：压缩临时目录中的文件
       - name: Compress code
         run: |
-          tar -czvf source_code.tar.gz --exclude='.git' .
+          tar -czvf source_code.tar.gz -C temp_dir .
 
-      # 步骤 4：上传压缩包作为构建产物
+      # 步骤 5：上传压缩包作为构建产物
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
