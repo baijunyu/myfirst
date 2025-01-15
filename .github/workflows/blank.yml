@@ -10,7 +10,7 @@ on:
       tag:
         description: 'Tag to checkout'
         required: true
-        default: "v1.0"
+        default: "v1.1"
 
 jobs:
   build:
