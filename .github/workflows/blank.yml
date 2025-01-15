@@ -11,21 +11,17 @@ on:
       tag:
         description: 'Tag to checkout'
         required: true
-        default: "v1.0"
+        default: "v1.0.0"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clean workspace
-        run: |          
-          rm -rf *
-
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: v1.1
+          ref: ${{inputs.tag}}
 
       # 步骤 2：设置 Java 环境
       - name: Set up Java
