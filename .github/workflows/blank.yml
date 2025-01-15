@@ -1,3 +1,4 @@
+
 name: Trial CI Workflow
 
 on:
@@ -10,13 +11,17 @@ on:
       tag:
         description: 'Tag to checkout'
         required: true
-        default: "v1.1"
+        default: "v1.0"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Clean workspace
+        run: |          
+          rm -rf *
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -29,32 +34,14 @@ jobs:
           java-version: '8'
           distribution: 'adopt'
 
-      # 步骤 3：清理工作目录（排除 .git 目录）
-      - name: Clean workspace
+      # 步骤 3：使用 git archive 压缩代码
+      - name: Compress code using git archive
         run: |          
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          git archive --format=tar.gz --output=source_code.tar.gz HEAD
 
-      # 步骤 4：重新检出指定标签
-      - name: Re-checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.tag }}
-
-      # 步骤 5：压缩代码（排除 .git 目录）
-      - name: Compress code
-        run: |         
-          tar -czvf source_code.tar.gz --exclude='.git' .
-
-      # 步骤 6：上传压缩包作为构建产物
+      # 步骤 4：上传压缩包作为构建产物
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: source_code.tar.gz
           path: source_code.tar.gz
-
-      - name: Upload PDFs
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-pdfs
-          path: source_code.tar.gz
-  
