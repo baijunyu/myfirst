@@ -10,7 +10,7 @@ on:
       tag:
         description: 'Tag to checkout'
         required: true
-        default: "v1.1"
+        default: "v1.0"
 
 jobs:
   build:
@@ -29,16 +29,28 @@ jobs:
           java-version: '8'
           distribution: 'adopt'
 
-      # 步骤 3：创建临时目录并复制文件
-      - name: Create temporary directory and copy files
-        run: |
-          mkdir temp_dir
-          rsync -av --exclude='.git' . temp_dir/
+      # 步骤 3：清理工作目录（排除 .git 目录）
+      - name: Clean workspace
+        run: |          
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 
-      # 步骤 4：压缩临时目录中的文件
+      # 步骤 4：重新检出指定标签
+      - name: Re-checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
+      # 步骤 5：压缩代码（排除 .git 目录）
       - name: Compress code
-        run: |
-          tar -czvf source_code.tar.gz -C temp_dir .
+        run: |         
+          tar -czvf source_code.tar.gz --exclude='.git' .
+
+      # 步骤 6：上传压缩包作为构建产物
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: source_code.tar.gz
+          path: source_code.tar.gz
 
       - name: Upload PDFs
         uses: actions/upload-artifact@v4
