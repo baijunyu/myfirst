@@ -1,36 +1,42 @@
-# This is a basic workflow to help you get started with Actions
+name: Trial CI Workflow
 
-name: CI
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [ "master" ]
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to checkout'
+        required: true
+        default: "v1.0"
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.tag }}
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # 步骤 2：设置 Java 环境
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '8'
+          distribution: 'adopt'
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      # 步骤 3：压缩代码
+      - name: Compress code
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          tar -czvf source_code.tar.gz .
+
+      # 步骤 4：上传压缩包作为构建产物
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: source_code.tar.gz
+          path: source_code.tar.gz
