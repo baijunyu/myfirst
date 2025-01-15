@@ -40,9 +40,9 @@ jobs:
         run: |
           tar -czvf source_code.tar.gz -C temp_dir .
 
-      # 步骤 5：上传压缩包作为构建产物
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload PDFs
+        uses: actions/upload-artifact@v4
         with:
-          name: source_code.tar.gz
+          name: documentation-pdfs
           path: source_code.tar.gz
+  
